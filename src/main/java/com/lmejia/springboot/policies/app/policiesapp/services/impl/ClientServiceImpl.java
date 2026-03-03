@@ -100,5 +100,9 @@ public class ClientServiceImpl implements IClientService {
                 throw new BusinessRuleException("Client must be at least 18 years old.");
             }
         }
+
+        if (clientRepository.existsByIdentificationNumber(client.getIdentificationNumber())) {
+            throw new BusinessRuleException("Identification number already exists.");
+        }
     }
 }
