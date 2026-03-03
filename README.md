@@ -33,8 +33,8 @@ respuesta.
 
 ### Cómo correr el proyecto en local
 
-Para facilitar la revisión de la prueba, se implementó una base de datos en memoria (H2) que se autopuebla al iniciar
-la aplicación
+Para facilitar la revisión de la prueba, se implementó una base de datos en memoria (H2) que se puebla automáticamente
+al iniciar la aplicación.
 
 #### **1. Requisitos previos**
 

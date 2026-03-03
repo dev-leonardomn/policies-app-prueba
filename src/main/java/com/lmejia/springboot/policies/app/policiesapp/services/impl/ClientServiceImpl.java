@@ -1,6 +1,7 @@
 package com.lmejia.springboot.policies.app.policiesapp.services.impl;
 
 import com.lmejia.springboot.policies.app.policiesapp.dto.ClientDTO;
+import com.lmejia.springboot.policies.app.policiesapp.dto.PageResponse;
 import com.lmejia.springboot.policies.app.policiesapp.entities.Client;
 import com.lmejia.springboot.policies.app.policiesapp.entities.IdentificationTypeEnum;
 import com.lmejia.springboot.policies.app.policiesapp.exceptions.BusinessRuleException;
@@ -11,6 +12,10 @@ import com.lmejia.springboot.policies.app.policiesapp.services.IClientService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,8 +39,29 @@ public class ClientServiceImpl implements IClientService {
 
     @Override
     @Transactional
-    public List<Client> findAllClients() {
-        return clientRepository.findAll();
+    public PageResponse<ClientDTO> findAllClients(int page, int size, String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("DESC")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Client> clientPage = clientRepository.findAll(pageable);
+
+        List<ClientDTO> content = clientPage.getContent()
+                .stream()
+                .map(clientMapper::toDto)
+                .toList();
+
+        return PageResponse.<ClientDTO>builder()
+                .content(content)
+                .page(clientPage.getNumber())
+                .size(clientPage.getSize())
+                .totalElements(clientPage.getTotalElements())
+                .totalPages(clientPage.getTotalPages())
+                .last(clientPage.isLast())
+                .build();
+
     }
 
     @Override

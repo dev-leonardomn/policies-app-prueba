@@ -1,6 +1,7 @@
 package com.lmejia.springboot.policies.app.policiesapp.controllers;
 
 import com.lmejia.springboot.policies.app.policiesapp.dto.BeneficiaryResponseDTO;
+import com.lmejia.springboot.policies.app.policiesapp.dto.PageResponse;
 import com.lmejia.springboot.policies.app.policiesapp.dto.SubscriptionRequestDTO;
 import com.lmejia.springboot.policies.app.policiesapp.dto.SubscriptionResponseDTO;
 import com.lmejia.springboot.policies.app.policiesapp.entities.Subscription;
@@ -50,9 +51,28 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "404", description = "Client not found"),
     })
     @GetMapping("/client/{clientId}")
-    public ResponseEntity<List<SubscriptionResponseDTO>> getByClient(@Parameter(description = "Client identifier", required = true) @PathVariable Long clientId) {
-        List<Subscription> subs = subscriptionService.getSubscriptionsById(clientId);
-        return ResponseEntity.ok(mapper.toResponseDtoList(subs));
+    public ResponseEntity<PageResponse<SubscriptionResponseDTO>> getByClient(
+            @Parameter(description = "Client identifier", required = true)
+            @PathVariable Long clientId,
+            @RequestParam(defaultValue = "0")   int page,
+            @RequestParam(defaultValue = "10")  int size,
+            @RequestParam(defaultValue = "id")  String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+
+        PageResponse<Subscription> subPage = subscriptionService.getSubscriptionsById(clientId, page, size, sortBy, sortDirection);
+
+        List<SubscriptionResponseDTO> content = mapper.toResponseDtoList(subPage.getContent());
+
+        PageResponse<SubscriptionResponseDTO> response = PageResponse.<SubscriptionResponseDTO>builder()
+                .content(content)
+                .page(subPage.getPage())
+                .size(subPage.getSize())
+                .totalElements(subPage.getTotalElements())
+                .totalPages(subPage.getTotalPages())
+                .last(subPage.isLast())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Get subscription details", description = "Get a subscription detail")

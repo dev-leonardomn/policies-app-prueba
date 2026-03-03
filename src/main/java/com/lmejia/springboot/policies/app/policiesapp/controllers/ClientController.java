@@ -1,6 +1,7 @@
 package com.lmejia.springboot.policies.app.policiesapp.controllers;
 
 import com.lmejia.springboot.policies.app.policiesapp.dto.ClientDTO;
+import com.lmejia.springboot.policies.app.policiesapp.dto.PageResponse;
 import com.lmejia.springboot.policies.app.policiesapp.entities.Client;
 import com.lmejia.springboot.policies.app.policiesapp.exceptions.ResourceNotFoundException;
 import com.lmejia.springboot.policies.app.policiesapp.mapper.ClientMapper;
@@ -44,9 +45,11 @@ public class ClientController {
             @ApiResponse(responseCode = "200", description = "Clients retrieved successfully")
     })
     @GetMapping
-    public ResponseEntity<List<ClientDTO>> findAll() {
-        List<Client> clientList = clientService.findAllClients();
-        return ResponseEntity.ok(clientMapper.toDtoList(clientList));
+    public ResponseEntity<PageResponse<ClientDTO>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam(defaultValue = "id") String sortBy,
+                                                           @RequestParam(defaultValue = "ASC") String sortDirection) {
+        return ResponseEntity.ok(clientService.findAllClients(page, size, sortBy, sortDirection));
     }
 
     @Operation(

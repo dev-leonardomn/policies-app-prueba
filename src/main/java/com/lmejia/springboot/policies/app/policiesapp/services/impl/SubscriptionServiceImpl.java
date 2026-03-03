@@ -1,7 +1,9 @@
 package com.lmejia.springboot.policies.app.policiesapp.services.impl;
 
 import com.lmejia.springboot.policies.app.policiesapp.dto.BeneficiaryDTO;
+import com.lmejia.springboot.policies.app.policiesapp.dto.PageResponse;
 import com.lmejia.springboot.policies.app.policiesapp.dto.SubscriptionRequestDTO;
+import com.lmejia.springboot.policies.app.policiesapp.dto.SubscriptionResponseDTO;
 import com.lmejia.springboot.policies.app.policiesapp.entities.*;
 import com.lmejia.springboot.policies.app.policiesapp.exceptions.BusinessRuleException;
 import com.lmejia.springboot.policies.app.policiesapp.exceptions.ResourceNotFoundException;
@@ -9,6 +11,10 @@ import com.lmejia.springboot.policies.app.policiesapp.repository.*;
 import com.lmejia.springboot.policies.app.policiesapp.services.ISubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -60,8 +66,27 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
     }
 
     @Override
-    public List<Subscription> getSubscriptionsById(Long clientId) {
-        return subscriptionRepository.findByClientId(clientId);
+    public PageResponse<Subscription> getSubscriptionsById(Long clientId, int page, int size, String sortBy, String sortDirection) {
+
+        if (!clientRepository.existsById(clientId)) {
+            throw new ResourceNotFoundException("Client not found");
+        }
+
+        Sort sort = sortDirection.equalsIgnoreCase("DESC")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Subscription> subPage = subscriptionRepository.findByClientId(clientId, pageable);
+
+        return PageResponse.<Subscription>builder()
+                .content(subPage.getContent())
+                .page(subPage.getNumber())
+                .size(subPage.getSize())
+                .totalElements(subPage.getTotalElements())
+                .totalPages(subPage.getTotalPages())
+                .last(subPage.isLast())
+                .build();
     }
 
     @Override
