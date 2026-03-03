@@ -55,6 +55,53 @@ al iniciar la aplicación.
 
 `./mvnw spring-boot:run`
 
+4. Ejemplo para crear usuario
+
+`
+{
+  "identificationType": "CC",
+  "identificationNumber": "1234",
+  "name": "Test",
+  "lastName": "Test",
+  "email": "test@example.com",
+  "phoneNumber": "+573001234567",
+  "birthDate": "1990-05-15T10:00:00"
+}
+`
+
+5. Ejemplo para crear una póliza con beneficiarios
+
+`
+{
+  "idClient": 1,
+  "idPolicy": 2,
+  "status": "ACTIVE",
+  "beneficiaries": [
+    {
+      "beneficiaryId": 1,
+      "relationshipType": "CONYUGE",
+      "price": 500.00
+    },
+    {
+      "beneficiaryId": 2,
+      "relationshipType": "HIJO",
+      "price": 300.00
+    }
+  ]
+}
+`
+
+6. Ejemplo para crear póliza para vehículos
+
+`
+{
+  "idClient": 1,
+  "idPolicy": 3,
+  "status": "ACTIVE",
+  "vehiclesIds": [1,2]
+}
+`
+
 #### **3. Acceso a la documentación y datos**
 
 **- Swagger UI:** http://localhost:8080/swagger-ui/index.html
